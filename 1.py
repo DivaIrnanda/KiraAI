@@ -22,13 +22,6 @@ def load_api_key():
     except:
         return None
 
-api_key = load_api_key()
-
-if not api_key:
-    st.error("⚠️ API Key tidak ditemukan di st.secrets! Tambahkan ke .streamlit/secrets.toml")
-    st.stop()
-
-
 
 # ======================
 #    CUSTOM CSS STYLE
@@ -43,12 +36,21 @@ CUSTOM_CSS = """
     box-sizing: border-box;
 }
 
+/* Background dengan warna hijau atas bawah */
 .stApp {
-    background: linear-gradient(135deg, #8B4513 0%, #A0522D 50%, #CD853F 100%);
+    background: linear-gradient(180deg, 
+        #2D5016 0%, 
+        #3D6B1F 5%,
+        #8B4513 15%, 
+        #A0522D 50%, 
+        #CD853F 85%,
+        #3D6B1F 95%,
+        #2D5016 100%
+    );
     background-attachment: fixed;
 }
 
-/* Header dengan ornamen kayu */
+/* Header dengan ornamen kayu dan aksen hijau */
 .main-header {
     background: linear-gradient(145deg, #5D4037 0%, #6D4C41 50%, #4E342E 100%);
     padding: 40px 20px 30px;
@@ -57,6 +59,7 @@ CUSTOM_CSS = """
     margin-bottom: 30px;
     position: relative;
     overflow: hidden;
+    border-bottom: 4px solid #4A7C2C;
 }
 
 .main-header::before {
@@ -67,11 +70,11 @@ CUSTOM_CSS = """
     right: 0;
     height: 6px;
     background: linear-gradient(90deg, 
-        #D4AF37 0%, 
-        #F4E4C1 25%, 
-        #D4AF37 50%, 
-        #F4E4C1 75%, 
-        #D4AF37 100%
+        #4A7C2C 0%, 
+        #D4AF37 20%,
+        #F4E4C1 40%, 
+        #D4AF37 60%, 
+        #4A7C2C 100%
     );
 }
 
@@ -81,7 +84,7 @@ CUSTOM_CSS = """
     top: 15px;
     left: 50%;
     transform: translateX(-50%);
-    color: #D4AF37;
+    color: #4A7C2C;
     font-size: 14px;
     letter-spacing: 8px;
 }
@@ -130,7 +133,7 @@ CUSTOM_CSS = """
     font-family: 'Poppins', sans-serif;
     font-size: 15px;
     line-height: 1.6;
-    border: 2px solid rgba(212, 175, 55, 0.3);
+    border: 2px solid rgba(74, 124, 44, 0.4);
     position: relative;
 }
 
@@ -161,7 +164,7 @@ CUSTOM_CSS = """
     font-family: 'Poppins', sans-serif;
     font-size: 15px;
     line-height: 1.7;
-    border: 2px solid rgba(139, 69, 19, 0.2);
+    border: 2px solid rgba(74, 124, 44, 0.3);
     position: relative;
 }
 
@@ -178,36 +181,45 @@ CUSTOM_CSS = """
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Input area dengan tema kayu */
+/* Input area SELALU PUTIH dengan teks hitam */
 .stChatInput {
-    background: rgba(255, 255, 255, 0.95) !important;
+    background: #FFFFFF !important;
     border-radius: 25px !important;
-    border: 3px solid #8B4513 !important;
+    border: 3px solid #4A7C2C !important;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
 }
 
-.stChatInput input {
-    font-family: 'Poppins', sans-serif !important;
-    color: #000000 !important;
-    font-size: 15px !important;
-    font-weight: 500 !important;
-}
-
-.stChatInput input::placeholder {
-    color: #666666 !important;
-    opacity: 1 !important;
-}
-
+.stChatInput input,
 .stChatInput textarea {
     font-family: 'Poppins', sans-serif !important;
     color: #000000 !important;
     font-size: 15px !important;
     font-weight: 500 !important;
+    background: #FFFFFF !important;
+    -webkit-text-fill-color: #000000 !important;
 }
 
-/* Override Streamlit default text color */
+.stChatInput input::placeholder,
+.stChatInput textarea::placeholder {
+    color: #666666 !important;
+    opacity: 1 !important;
+}
+
+/* Override semua selector Streamlit untuk input */
+[data-testid="stChatInput"],
+[data-testid="stChatInput"] > div,
 [data-testid="stChatInput"] input,
 [data-testid="stChatInput"] textarea {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+}
+
+[data-testid="stChatInputTextArea"],
+[data-testid="stChatInputTextArea"] textarea {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
     color: #000000 !important;
     -webkit-text-fill-color: #000000 !important;
 }
@@ -216,40 +228,40 @@ CUSTOM_CSS = """
 .decorative-line {
     text-align: center;
     margin: 20px 0;
-    color: #D4AF37;
+    color: #4A7C2C;
     font-size: 20px;
     letter-spacing: 10px;
 }
 
-/* Scrollbar custom */
+/* Scrollbar custom dengan aksen hijau */
 ::-webkit-scrollbar {
     width: 12px;
 }
 
 ::-webkit-scrollbar-track {
-    background: rgba(139, 69, 19, 0.2);
+    background: rgba(45, 80, 22, 0.3);
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #8B4513 0%, #6D4C41 100%);
+    background: linear-gradient(180deg, #4A7C2C 0%, #6D4C41 100%);
     border-radius: 10px;
-    border: 2px solid rgba(212, 175, 55, 0.3);
+    border: 2px solid rgba(74, 124, 44, 0.4);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #6D4C41 0%, #5D4037 100%);
+    background: linear-gradient(180deg, #3D6B1F 0%, #5D4037 100%);
 }
 
 /* Welcome message */
 .welcome-card {
-    background: linear-gradient(135deg, rgba(245, 222, 179, 0.9) 0%, rgba(222, 184, 135, 0.9) 100%);
+    background: linear-gradient(135deg, rgba(245, 222, 179, 0.95) 0%, rgba(222, 184, 135, 0.95) 100%);
     border-radius: 20px;
     padding: 30px;
     margin: 20px auto;
     max-width: 700px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-    border: 3px solid rgba(139, 69, 19, 0.3);
+    border: 3px solid rgba(74, 124, 44, 0.4);
     text-align: center;
 }
 
@@ -278,6 +290,19 @@ CUSTOM_CSS = """
     animation: float 3s ease-in-out infinite;
 }
 
+/* Footer dengan aksen hijau */
+.stApp::after {
+    content: '';
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(180deg, transparent 0%, rgba(45, 80, 22, 0.3) 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
 </style>
 """
 
@@ -297,6 +322,9 @@ st.markdown("""
 
 api_key = load_api_key()
 
+if not api_key:
+    st.error("⚠️ API Key tidak ditemukan di st.secrets! Tambahkan ke .streamlit/secrets.toml")
+    st.stop()
 
 client = genai.Client(api_key=api_key)
 model = "models/gemini-2.0-flash"
