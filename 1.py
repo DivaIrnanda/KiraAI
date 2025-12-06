@@ -18,10 +18,16 @@ Jika pertanyaan benar-benar tidak berkaitan dengan seni ukir Jepara, jawab denga
 # ======================
 def load_api_key():
     try:
-        with open("api_key.txt", "r") as f:
-            return f.read().strip()
+        return st.secrets["API_KEY"]
     except:
         return None
+
+api_key = load_api_key()
+
+if not api_key:
+    st.error("⚠️ API Key tidak ditemukan di st.secrets! Tambahkan ke .streamlit/secrets.toml")
+    st.stop()
+
 
 
 # ======================
@@ -291,9 +297,6 @@ st.markdown("""
 
 api_key = load_api_key()
 
-if not api_key:
-    st.error("⚠️ API Key tidak ditemukan! Pastikan file `api_key.txt` tersedia.")
-    st.stop()
 
 client = genai.Client(api_key=api_key)
 model = "models/gemini-2.0-flash"
