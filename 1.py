@@ -181,12 +181,26 @@ CUSTOM_CSS = """
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
+/* Animasi kedip-kedip untuk border */
+@keyframes blink-border {
+    0%, 100% { 
+        border-color: #4A7C2C;
+        box-shadow: 0 0 20px rgba(74, 124, 44, 0.8);
+    }
+    50% { 
+        border-color: #D4AF37;
+        box-shadow: 0 0 30px rgba(212, 175, 55, 0.9);
+    }
+}
+
 /* Input area SELALU PUTIH dengan teks hitam */
-.stChatInput {
+.stChatInput,
+[data-testid="stChatInput"],
+[data-testid="stChatInput"] > div {
     background: #FFFFFF !important;
     border-radius: 25px !important;
     border: 3px solid #4A7C2C !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+    animation: blink-border 1s ease-in-out infinite !important;
 }
 
 .stChatInput input,
@@ -301,21 +315,6 @@ CUSTOM_CSS = """
     background: linear-gradient(180deg, transparent 0%, rgba(45, 80, 22, 0.3) 100%);
     pointer-events: none;
     z-index: 0;
-}
-
-/* Animasi kedip-kedip untuk border */
-@keyframes blink-border {
-    0%, 100% { border-color: #4A7C2C; }
-    50% { border-color: #D4AF37; }
-}
-
-/* Input area SELALU PUTIH dengan teks hitam */
-.stChatInput {
-    background: #FFFFFF !important;
-    border-radius: 25px !important;
-    border: 3px solid #4A7C2C !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
-    animation: blink-border 1.5s ease-in-out infinite !important;
 }
 
 </style>
