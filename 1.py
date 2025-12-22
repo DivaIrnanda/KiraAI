@@ -382,17 +382,25 @@ if user_input:
 
     generate_config = types.GenerateContentConfig()
 
-    # Streaming response
     full_response = ""
+    try:
+        with st.spinner("🎨 Sedang menyiapkan jawaban..."):
+            response = client.models.generate_content_stream(
+                model=model,
+                contents=combined_prompt, 
+                config=types.GenerateContentConfig(
+                    system_instruction=SYSTEM_PROMPT, 
+                    temperature=0.7,
+                ),
+            )
     
-    with st.spinner("🎨 Sedang menyiapkan jawaban..."):
-        for chunk in client.models.generate_content_stream(
-            model=model,
-            contents=contents,
-            config=generate_config,
-        ):
-            if chunk.text:
-                full_response += chunk.text
+            for chunk in response:
+                if chunk.text:
+                    full_response += chunk.text
+    
+    except Exception as e:
+    st.error(f"Detail Eror dari Google: {e}")
+    st.stop()
 
     # Simpan pesan bot
     st.session_state.messages.append({"role": "assistant", "content": full_response})
