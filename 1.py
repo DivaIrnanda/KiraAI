@@ -181,15 +181,13 @@ CUSTOM_CSS = """
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Animasi kedip-kedip untuk border */
-@keyframes blink-border {
-    0%, 100% { 
-        border-color: #4A7C2C;
-        box-shadow: 0 0 20px rgba(74, 124, 44, 0.8);
+/* Animasi cursor kedip-kedip */
+@keyframes blink-cursor {
+    0%, 49% { 
+        opacity: 1;
     }
-    50% { 
-        border-color: #D4AF37;
-        box-shadow: 0 0 30px rgba(212, 175, 55, 0.9);
+    50%, 100% { 
+        opacity: 0;
     }
 }
 
@@ -200,7 +198,7 @@ CUSTOM_CSS = """
     background: #FFFFFF !important;
     border-radius: 25px !important;
     border: 3px solid #4A7C2C !important;
-    animation: blink-border 1s ease-in-out infinite !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
 }
 
 .stChatInput input,
@@ -211,6 +209,21 @@ CUSTOM_CSS = """
     font-weight: 500 !important;
     background: #FFFFFF !important;
     -webkit-text-fill-color: #000000 !important;
+    caret-color: #4A7C2C !important;
+}
+
+/* Styling cursor supaya lebih tebal dan jelas */
+.stChatInput input:focus,
+.stChatInput textarea:focus {
+    caret-color: #4A7C2C !important;
+    animation: none !important;
+}
+
+/* Override caret untuk semua input */
+[data-testid="stChatInput"] input,
+[data-testid="stChatInput"] textarea,
+[data-testid="stChatInputTextArea"] textarea {
+    caret-color: #4A7C2C !important;
 }
 
 .stChatInput input::placeholder,
