@@ -382,6 +382,7 @@ if user_input:
 
     generate_config = types.GenerateContentConfig()
 
+# Streaming response
     full_response = ""
     try:
         with st.spinner("🎨 Sedang menyiapkan jawaban..."):
@@ -393,17 +394,18 @@ if user_input:
                     temperature=0.7,
                 ),
             )
-    
+            
             for chunk in response:
                 if chunk.text:
                     full_response += chunk.text
-    
+                    
     except Exception as e:
-    st.error(f"Detail Eror dari Google: {e}")
-    st.stop()
+        # Baris di bawah ini HARUS menjorok ke dalam (4 spasi)
+        st.error(f"Detail Eror dari Google: {e}")
+        st.stop()
 
-    # Simpan pesan bot
+    # Simpan pesan bot ke riwayat
     st.session_state.messages.append({"role": "assistant", "content": full_response})
     
-    # Refresh untuk menampilkan pesan baru
+    # Jalankan ulang untuk menampilkan pesan terbaru
     st.rerun()
