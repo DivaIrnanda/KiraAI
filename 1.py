@@ -327,7 +327,7 @@ if not api_key:
     st.stop()
 
 client = genai.Client(api_key=api_key)
-model = "gemini-2.5-flash-native-audio-dialog"  # Ganti dari 2.0 ke 1.5
+model = "gemini-2.5-flash-lite"  # Ganti dari 2.0 ke 1.5
 
 # ======================
 #   SESSION STATE CHAT
