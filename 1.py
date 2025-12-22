@@ -303,6 +303,21 @@ CUSTOM_CSS = """
     z-index: 0;
 }
 
+/* Animasi kedip-kedip untuk border */
+@keyframes blink-border {
+    0%, 100% { border-color: #4A7C2C; }
+    50% { border-color: #D4AF37; }
+}
+
+/* Input area SELALU PUTIH dengan teks hitam */
+.stChatInput {
+    background: #FFFFFF !important;
+    border-radius: 25px !important;
+    border: 3px solid #4A7C2C !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+    animation: blink-border 1.5s ease-in-out infinite !important;
+}
+
 </style>
 """
 
