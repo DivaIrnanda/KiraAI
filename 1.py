@@ -354,7 +354,7 @@ if not api_key:
     st.stop()
 
 client = genai.Client(api_key=api_key)
-model = "gemini-1.0-pro"  
+model = "gemini-1.5-flash"  
 
 # ======================
 #   SESSION STATE CHAT
