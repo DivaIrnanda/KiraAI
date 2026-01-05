@@ -5,12 +5,43 @@ from google import genai
 from google.genai import types
 
 # ======================
+#   LOAD DATA FROM FILE
+# ======================
+def load_company_data():
+    """Membaca data perusahaan dari file data.txt"""
+    try:
+        with open('data.txt', 'r', encoding='utf-8') as file:
+            return file.read()
+    except FileNotFoundError:
+        st.error("⚠️ File data.txt tidak ditemukan! Pastikan file ada di folder yang sama dengan script.")
+        st.stop()
+    except Exception as e:
+        st.error(f"⚠️ Error membaca file data.txt: {e}")
+        st.stop()
+
+# Load data perusahaan dari file
+COMPANY_DATA = load_company_data()
+
+# ======================
 #      SYSTEM PROMPT
 # ======================
-SYSTEM_PROMPT = """
-Anda adalah chatbot khusus tentang Seni Ukir Jepara.
-Anda boleh menjawab seluruh hal yang masih berkaitan dengan Seni Ukir Jepara, termasuk: sejarah, motif ukiran, teknik ukir, jenis kayu, alat ukir, proses pembuatan, nilai budaya, tokoh pengrajin, daerah penghasil ukiran, sentra industri ukir, dan informasi edukatif lain seputar seni ukir di Kabupaten Jepara.
-Jika pertanyaan benar-benar tidak berkaitan dengan seni ukir Jepara, jawab dengan sopan bahwa Anda hanya bisa menjawab topik tersebut.
+SYSTEM_PROMPT = f"""
+Anda adalah chatbot bernama "Kira Chat" yang ahli dalam dua hal:
+
+1. SENI UKIR JEPARA
+Anda boleh menjawab seluruh hal yang berkaitan dengan Seni Ukir Jepara, termasuk: sejarah, motif ukiran, teknik ukir, jenis kayu, alat ukir, proses pembuatan, nilai budaya, filosofi, tokoh pengrajin, daerah penghasil ukiran, sentra industri ukir, dan informasi edukatif lainnya.
+
+2. JEPARA ART FURNICRAFT
+Anda memiliki akses ke informasi lengkap tentang Jepara Art Furnicraft:
+
+{COMPANY_DATA}
+
+ATURAN PENTING:
+- Untuk pertanyaan tentang alamat, kontak, produk, harga, atau layanan Jepara Art Furnicraft, gunakan data di atas
+- Untuk pemesanan langsung atau komunikasi detail, arahkan pengguna ke WhatsApp (0823 2330 3666), email (jeparaartfurnicraft@gmail.com), atau website (https://jeparahandicraft.net)
+- Jika pertanyaan tidak berkaitan dengan seni ukir Jepara atau Jepara Art Furnicraft, jawab dengan sopan bahwa Anda hanya fokus pada topik tersebut
+- Jawab dengan ramah, informatif, dan profesional
+- Gunakan bahasa Indonesia yang baik dan mudah dipahami
 """
 
 # ======================
@@ -21,13 +52,6 @@ def load_api_key():
         return st.secrets["API_KEY"]
     except:
         return None
-
-api_key = load_api_key()
-
-if not api_key:
-    st.error("⚠️ API Key tidak ditemukan di st.secrets! Tambahkan ke .streamlit/secrets.toml")
-    st.stop()
-
 
 
 # ======================
@@ -43,12 +67,21 @@ CUSTOM_CSS = """
     box-sizing: border-box;
 }
 
+/* Background dengan warna hijau atas bawah */
 .stApp {
-    background: linear-gradient(135deg, #8B4513 0%, #A0522D 50%, #CD853F 100%);
+    background: linear-gradient(180deg, 
+        #2D5016 0%, 
+        #3D6B1F 5%,
+        #8B4513 15%, 
+        #A0522D 50%, 
+        #CD853F 85%,
+        #3D6B1F 95%,
+        #2D5016 100%
+    );
     background-attachment: fixed;
 }
 
-/* Header dengan ornamen kayu */
+/* Header dengan ornamen kayu dan aksen hijau */
 .main-header {
     background: linear-gradient(145deg, #5D4037 0%, #6D4C41 50%, #4E342E 100%);
     padding: 40px 20px 30px;
@@ -57,6 +90,7 @@ CUSTOM_CSS = """
     margin-bottom: 30px;
     position: relative;
     overflow: hidden;
+    border-bottom: 4px solid #4A7C2C;
 }
 
 .main-header::before {
@@ -67,11 +101,11 @@ CUSTOM_CSS = """
     right: 0;
     height: 6px;
     background: linear-gradient(90deg, 
-        #D4AF37 0%, 
-        #F4E4C1 25%, 
-        #D4AF37 50%, 
-        #F4E4C1 75%, 
-        #D4AF37 100%
+        #4A7C2C 0%, 
+        #D4AF37 20%,
+        #F4E4C1 40%, 
+        #D4AF37 60%, 
+        #4A7C2C 100%
     );
 }
 
@@ -81,7 +115,7 @@ CUSTOM_CSS = """
     top: 15px;
     left: 50%;
     transform: translateX(-50%);
-    color: #D4AF37;
+    color: #4A7C2C;
     font-size: 14px;
     letter-spacing: 8px;
 }
@@ -130,7 +164,7 @@ CUSTOM_CSS = """
     font-family: 'Poppins', sans-serif;
     font-size: 15px;
     line-height: 1.6;
-    border: 2px solid rgba(212, 175, 55, 0.3);
+    border: 2px solid rgba(74, 124, 44, 0.4);
     position: relative;
 }
 
@@ -161,7 +195,7 @@ CUSTOM_CSS = """
     font-family: 'Poppins', sans-serif;
     font-size: 15px;
     line-height: 1.7;
-    border: 2px solid rgba(139, 69, 19, 0.2);
+    border: 2px solid rgba(74, 124, 44, 0.3);
     position: relative;
 }
 
@@ -178,36 +212,59 @@ CUSTOM_CSS = """
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Input area dengan tema kayu */
-.stChatInput {
-    background: rgba(255, 255, 255, 0.95) !important;
+/* Input area SELALU PUTIH dengan teks hitam */
+.stChatInput,
+[data-testid="stChatInput"],
+[data-testid="stChatInput"] > div {
+    background: #FFFFFF !important;
     border-radius: 25px !important;
-    border: 3px solid #8B4513 !important;
+    border: 3px solid #4A7C2C !important;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
 }
 
-.stChatInput input {
-    font-family: 'Poppins', sans-serif !important;
-    color: #000000 !important;
-    font-size: 15px !important;
-    font-weight: 500 !important;
-}
-
-.stChatInput input::placeholder {
-    color: #666666 !important;
-    opacity: 1 !important;
-}
-
+.stChatInput input,
 .stChatInput textarea {
     font-family: 'Poppins', sans-serif !important;
     color: #000000 !important;
     font-size: 15px !important;
     font-weight: 500 !important;
+    background: #FFFFFF !important;
+    -webkit-text-fill-color: #000000 !important;
+    caret-color: #4A7C2C !important;
 }
 
-/* Override Streamlit default text color */
+.stChatInput input:focus,
+.stChatInput textarea:focus {
+    caret-color: #4A7C2C !important;
+    animation: none !important;
+}
+
+[data-testid="stChatInput"] input,
+[data-testid="stChatInput"] textarea,
+[data-testid="stChatInputTextArea"] textarea {
+    caret-color: #4A7C2C !important;
+}
+
+.stChatInput input::placeholder,
+.stChatInput textarea::placeholder {
+    color: #666666 !important;
+    opacity: 1 !important;
+}
+
+[data-testid="stChatInput"],
+[data-testid="stChatInput"] > div,
 [data-testid="stChatInput"] input,
 [data-testid="stChatInput"] textarea {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+}
+
+[data-testid="stChatInputTextArea"],
+[data-testid="stChatInputTextArea"] textarea {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
     color: #000000 !important;
     -webkit-text-fill-color: #000000 !important;
 }
@@ -216,40 +273,40 @@ CUSTOM_CSS = """
 .decorative-line {
     text-align: center;
     margin: 20px 0;
-    color: #D4AF37;
+    color: #4A7C2C;
     font-size: 20px;
     letter-spacing: 10px;
 }
 
-/* Scrollbar custom */
+/* Scrollbar custom dengan aksen hijau */
 ::-webkit-scrollbar {
     width: 12px;
 }
 
 ::-webkit-scrollbar-track {
-    background: rgba(139, 69, 19, 0.2);
+    background: rgba(45, 80, 22, 0.3);
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #8B4513 0%, #6D4C41 100%);
+    background: linear-gradient(180deg, #4A7C2C 0%, #6D4C41 100%);
     border-radius: 10px;
-    border: 2px solid rgba(212, 175, 55, 0.3);
+    border: 2px solid rgba(74, 124, 44, 0.4);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #6D4C41 0%, #5D4037 100%);
+    background: linear-gradient(180deg, #3D6B1F 0%, #5D4037 100%);
 }
 
 /* Welcome message */
 .welcome-card {
-    background: linear-gradient(135deg, rgba(245, 222, 179, 0.9) 0%, rgba(222, 184, 135, 0.9) 100%);
+    background: linear-gradient(135deg, rgba(245, 222, 179, 0.95) 0%, rgba(222, 184, 135, 0.95) 100%);
     border-radius: 20px;
     padding: 30px;
     margin: 20px auto;
     max-width: 700px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-    border: 3px solid rgba(139, 69, 19, 0.3);
+    border: 3px solid rgba(74, 124, 44, 0.4);
     text-align: center;
 }
 
@@ -278,6 +335,19 @@ CUSTOM_CSS = """
     animation: float 3s ease-in-out infinite;
 }
 
+/* Footer dengan aksen hijau */
+.stApp::after {
+    content: '';
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(180deg, transparent 0%, rgba(45, 80, 22, 0.3) 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
 </style>
 """
 
@@ -297,9 +367,12 @@ st.markdown("""
 
 api_key = load_api_key()
 
+if not api_key:
+    st.error("⚠️ API Key tidak ditemukan di st.secrets! Tambahkan ke .streamlit/secrets.toml")
+    st.stop()
 
 client = genai.Client(api_key=api_key)
-model = "models/gemini-2.0-flash"
+model = "gemini-2.5-flash"
 
 # ======================
 #   SESSION STATE CHAT
@@ -316,13 +389,15 @@ if len(st.session_state.messages) == 0:
     st.markdown("""
     <div class='welcome-card'>
         <div class='welcome-title'>🪵 Selamat Datang di Kira Chat! 🪵</div>
-        <div class='decorative-line'>✦ ❖ ✦</div>
+        <div class='decorative-line'>✦ ◆ ✦</div>
         <div class='welcome-text'>
             Saya adalah asisten virtual yang siap membantu Anda menjelajahi keindahan 
-            <strong>Seni Ukir Jepara</strong>. Tanyakan tentang sejarah, motif, teknik ukir, 
-            jenis kayu, alat ukir, atau informasi lainnya seputar seni ukir jepara.
+            <strong>Seni Ukir Jepara</strong> dan mengenal produk-produk <strong>Jepara Art Furnicraft</strong>. 
+            <br><br>
+            Tanyakan tentang sejarah, motif, teknik ukir, produk furniture, harga, 
+            atau informasi lainnya seputar seni ukir dan mebel Jepara.
         </div>
-        <div class='decorative-line'>✦ ❖ ✦</div>
+        <div class='decorative-line'>✦ ◆ ✦</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -336,7 +411,7 @@ for msg in st.session_state.messages:
 # ======================
 #   INPUT PENGGUNA
 # ======================
-user_input = st.chat_input("💬 Ketik pertanyaan Anda tentang Seni Ukir Jepara...")
+user_input = st.chat_input("💬 Ketik pertanyaan Anda tentang Seni Ukir Jepara atau Jepara Art Furnicraft...")
 
 if user_input:
     # Simpan pesan user
@@ -345,29 +420,29 @@ if user_input:
     # Gabungkan prompt
     combined_prompt = f"{SYSTEM_PROMPT}\n\nPertanyaan pengguna: {user_input}"
 
-    contents = [
-        types.Content(
-            role="user",
-            parts=[types.Part.from_text(text=combined_prompt)],
-        )
-    ]
-
-    generate_config = types.GenerateContentConfig()
-
     # Streaming response
     full_response = ""
-    
-    with st.spinner("🎨 Sedang menyiapkan jawaban..."):
-        for chunk in client.models.generate_content_stream(
-            model=model,
-            contents=contents,
-            config=generate_config,
-        ):
-            if chunk.text:
-                full_response += chunk.text
+    try:
+        with st.spinner("🎨 Sedang menyiapkan jawaban..."):
+            response = client.models.generate_content_stream(
+                model=model,
+                contents=combined_prompt, 
+                config=types.GenerateContentConfig(
+                    system_instruction=SYSTEM_PROMPT, 
+                    temperature=0.7,
+                ),
+            )
+            
+            for chunk in response:
+                if chunk.text:
+                    full_response += chunk.text
+                    
+    except Exception as e:
+        st.error(f"Detail Error dari Google: {e}")
+        st.stop()
 
-    # Simpan pesan bot
+    # Simpan pesan bot ke riwayat
     st.session_state.messages.append({"role": "assistant", "content": full_response})
     
-    # Refresh untuk menampilkan pesan baru
+    # Jalankan ulang untuk menampilkan pesan terbaru
     st.rerun()

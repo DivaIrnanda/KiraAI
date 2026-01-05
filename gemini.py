@@ -17,7 +17,7 @@ def chat():
     client = genai.Client(api_key=api_key)
 
     # Model gratis
-    model = "models/gemini-2.0-flash"
+    model = "gemini-2.0-flash"
 
     print("Chatbot Gemini (ketik 'selesai' / 'bye' / 'exit' untuk keluar)\n")
 
