@@ -25,12 +25,24 @@ COMPANY_DATA = load_company_data()
 # ======================
 #      SYSTEM PROMPT
 # ======================
-SYSTEM_PROMPT = """
-Anda adalah chatbot khusus tentang Seni Ukir Jepara.
-Anda boleh menjawab seluruh hal yang masih berkaitan dengan Seni Ukir Jepara, termasuk: sejarah, motif ukiran, teknik ukir, jenis kayu, alat ukir, proses pembuatan, nilai budaya, tokoh pengrajin, daerah penghasil ukiran, sentra industri ukir, dan informasi edukatif lain seputar seni ukir di Kabupaten Jepara.
-Jika pertanyaan benar-benar tidak berkaitan dengan seni ukir Jepara, jawab dengan sopan bahwa Anda hanya bisa menjawab topik tersebut.
-"""
+SYSTEM_PROMPT = f"""
+Anda adalah chatbot bernama "Kira Chat" yang ahli dalam dua hal:
 
+1. SENI UKIR JEPARA
+Anda boleh menjawab seluruh hal yang berkaitan dengan Seni Ukir Jepara, termasuk: sejarah, motif ukiran, teknik ukir, jenis kayu, alat ukir, proses pembuatan, nilai budaya, filosofi, tokoh pengrajin, daerah penghasil ukiran, sentra industri ukir, dan informasi edukatif lainnya.
+
+2. JEPARA ART FURNICRAFT
+Anda memiliki akses ke informasi lengkap tentang Jepara Art Furnicraft:
+
+{COMPANY_DATA}
+
+ATURAN PENTING:
+- Untuk pertanyaan tentang alamat, kontak, produk, harga, atau layanan Jepara Art Furnicraft, gunakan data di atas
+- Untuk pemesanan langsung atau komunikasi detail, arahkan pengguna ke WhatsApp (0823 2330 3666), email (jeparaartfurnicraft@gmail.com), atau website (https://jeparahandicraft.net)
+- Jika pertanyaan tidak berkaitan dengan seni ukir Jepara atau Jepara Art Furnicraft, jawab dengan sopan bahwa Anda hanya fokus pada topik tersebut
+- Jawab dengan ramah, informatif, dan profesional
+- Gunakan bahasa Indonesia yang baik dan mudah dipahami
+"""
 
 # ======================
 #      API KEY
@@ -200,9 +212,11 @@ CUSTOM_CSS = """
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Input area dengan tema kayu */
-.stChatInput {
-    background: rgba(255, 255, 255, 0.95) !important;
+/* Input area SELALU PUTIH dengan teks hitam */
+.stChatInput,
+[data-testid="stChatInput"],
+[data-testid="stChatInput"] > div {
+    background: #FFFFFF !important;
     border-radius: 25px !important;
     border: 3px solid #4A7C2C !important;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
@@ -214,21 +228,31 @@ CUSTOM_CSS = """
     color: #000000 !important;
     font-size: 15px !important;
     font-weight: 500 !important;
+    background: #FFFFFF !important;
+    -webkit-text-fill-color: #000000 !important;
+    caret-color: #4A7C2C !important;
 }
 
-.stChatInput input::placeholder {
+.stChatInput input:focus,
+.stChatInput textarea:focus {
+    caret-color: #4A7C2C !important;
+    animation: none !important;
+}
+
+[data-testid="stChatInput"] input,
+[data-testid="stChatInput"] textarea,
+[data-testid="stChatInputTextArea"] textarea {
+    caret-color: #4A7C2C !important;
+}
+
+.stChatInput input::placeholder,
+.stChatInput textarea::placeholder {
     color: #666666 !important;
     opacity: 1 !important;
 }
 
-.stChatInput textarea {
-    font-family: 'Poppins', sans-serif !important;
-    color: #000000 !important;
-    font-size: 15px !important;
-    font-weight: 500 !important;
-}
-
-/* Override Streamlit default text color */
+[data-testid="stChatInput"],
+[data-testid="stChatInput"] > div,
 [data-testid="stChatInput"] input,
 [data-testid="stChatInput"] textarea {
     background: #FFFFFF !important;
@@ -348,7 +372,7 @@ if not api_key:
     st.stop()
 
 client = genai.Client(api_key=api_key)
-model = "models/gemini-2.0-flash"
+model = "gemini-2.5-flash"
 
 # ======================
 #   SESSION STATE CHAT
@@ -396,19 +420,28 @@ if user_input:
     # Gabungkan prompt
     combined_prompt = f"{SYSTEM_PROMPT}\n\nPertanyaan pengguna: {user_input}"
 
-# Streaming response
+    # Streaming response
     full_response = ""
-    
-    with st.spinner("🎨 Sedang menyiapkan jawaban..."):
-        for chunk in client.models.generate_content_stream(
-            model=model,
-            contents=contents,
-            config=generate_config,
-        ):
-            if chunk.text:
-                full_response += chunk.text
+    try:
+        with st.spinner("🎨 Sedang menyiapkan jawaban..."):
+            response = client.models.generate_content_stream(
+                model=model,
+                contents=combined_prompt, 
+                config=types.GenerateContentConfig(
+                    system_instruction=SYSTEM_PROMPT, 
+                    temperature=0.7,
+                ),
+            )
+            
+            for chunk in response:
+                if chunk.text:
+                    full_response += chunk.text
+                    
+    except Exception as e:
+        st.error(f"Detail Error dari Google: {e}")
+        st.stop()
 
-    # Simpan pesan bot
+    # Simpan pesan bot ke riwayat
     st.session_state.messages.append({"role": "assistant", "content": full_response})
     
     # Jalankan ulang untuk menampilkan pesan terbaru
